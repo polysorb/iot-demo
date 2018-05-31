@@ -18,13 +18,8 @@ public class StartupEvent implements ApplicationListener<ContextRefreshedEvent> 
 
             SysConfig sysConfig = context.getBean(SysConfig.class);
 
-            //接收UDP消息并保存至redis中
             UdpServer udpServer = (UdpServer)StartupEvent.getBean(UdpServer.class);
             udpServer.run(sysConfig.getUdpReceivePort());
-
-
-//            这里可以开启多个线程去执行不同的任务
-//            此处为工作的内容，不便公开！
 
 
         } catch (Exception e) {
