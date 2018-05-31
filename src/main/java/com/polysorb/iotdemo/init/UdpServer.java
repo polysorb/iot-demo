@@ -14,6 +14,12 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class UdpServer {
+    private final UdpServerHandler udpServerHandler;
+
+    public UdpServer(UdpServerHandler udpServerHandler) {
+        this.udpServerHandler = udpServerHandler;
+    }
+
     @Async("myTaskAsyncPool")
     public void run(int udpReceivePort) {
 
@@ -25,7 +31,7 @@ public class UdpServer {
             b.group(group)
                     .channel(NioDatagramChannel.class)
                     .option(ChannelOption.SO_BROADCAST, true)
-                    .handler(new UdpServerHandler());
+                    .handler(udpServerHandler);
 
             b.bind(udpReceivePort).sync().channel().closeFuture().await();
         } catch (InterruptedException e) {

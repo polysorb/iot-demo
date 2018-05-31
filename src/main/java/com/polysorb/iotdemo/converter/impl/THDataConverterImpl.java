@@ -3,25 +3,29 @@ package com.polysorb.iotdemo.converter.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.polysorb.iotdemo.converter.CO2Converter;
+import com.polysorb.iotdemo.converter.CommonDataConverter;
+import com.polysorb.iotdemo.converter.THDataConverter;
 import io.netty.buffer.ByteBuf;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CO2ConverterImpl implements CO2Converter {
+public class THDataConverterImpl implements THDataConverter {
+    private final CommonDataConverter converter;
+
+    public THDataConverterImpl(CommonDataConverter converter) {
+        this.converter = converter;
+    }
+
     @Override
     public JsonNode convert(ByteBuf buf) {
         ObjectMapper om = new ObjectMapper();
         ObjectNode node = om.createObjectNode();
 
+        // humidity
+        converter.convertHumidity(buf, node);
+
         // temperature
-        int tempH = (int)buf.getByte(12)&0xff;
-        int tempL = (int)buf.getByte(13)&0xff;
-        ObjectNode tempDetail = om.createObjectNode();
-        tempDetail.put("value", tempH+"."+tempL);
-        tempDetail.put("number", 1);
-        tempDetail.put("unit", "C");
-        node.set("temperature", tempDetail);
+        converter.convertTemperature(buf, node);
 
         // voltage
         int voltageH = (int)buf.getByte(16)&0xff;
@@ -33,11 +37,7 @@ public class CO2ConverterImpl implements CO2Converter {
         node.set("voltage", voltageDetail);
 
         // lqi
-        int lqi = (int)buf.getByte(45)&0xff;
-        ObjectNode lqiDetail = om.createObjectNode();
-        lqiDetail.put("value", lqi);
-        lqiDetail.put("number", 0);
-        node.set("lqi", lqiDetail);
+        converter.convertLqi(buf, node);
 
         return node;
     }
