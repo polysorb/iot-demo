@@ -2,6 +2,7 @@ package com.polysorb.iotdemo.converter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.polysorb.iotdemo.model.constants.IOTData;
 import io.netty.buffer.ByteBuf;
 import org.springframework.stereotype.Service;
 
@@ -9,10 +10,9 @@ import org.springframework.stereotype.Service;
 public class CommonDataConverter {
     public void convertTemperature(ByteBuf buf, ObjectNode node){
         ObjectMapper om = new ObjectMapper();
-        int tempH = (int)buf.getByte(12)&0xff;
-        int tempL = (int)buf.getByte(13)&0xff;
+        int tempH = buf.getShort(IOTData.TEMP_H);
         ObjectNode tempDetail = om.createObjectNode();
-        tempDetail.put("value", tempH+"."+tempL);
+        tempDetail.put("value", (float)tempH/100);
         tempDetail.put("number", 1);
         tempDetail.put("unit", "°C");
         node.set("temperature", tempDetail);
@@ -20,10 +20,9 @@ public class CommonDataConverter {
 
     public void convertHumidity(ByteBuf buf, ObjectNode node) {
         ObjectMapper om = new ObjectMapper();
-        int humidH = (int)buf.getByte(14)&0xff;
-        int humidL = (int)buf.getByte(15)&0xff;
+        int humidH = buf.getShort(IOTData.HUMID_H);
         ObjectNode humidDetail = om.createObjectNode();
-        humidDetail.put("value", humidH+"."+humidL);
+        humidDetail.put("value", (float)humidH/100);
         humidDetail.put("number", 2);
         humidDetail.put("unit", "%RH");
         node.set("humidity", humidDetail);
@@ -31,7 +30,7 @@ public class CommonDataConverter {
 
     public void convertLqi(ByteBuf buf, ObjectNode node) {
         ObjectMapper om = new ObjectMapper();
-        int lqi = (int)buf.getByte(45)&0xff;
+        int lqi = buf.getUnsignedByte(IOTData.LQI);
         ObjectNode lqiDetail = om.createObjectNode();
         lqiDetail.put("value", lqi);
         lqiDetail.put("number", 0);

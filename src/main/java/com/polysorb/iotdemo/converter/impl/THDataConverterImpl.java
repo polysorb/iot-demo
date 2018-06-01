@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.polysorb.iotdemo.converter.CommonDataConverter;
 import com.polysorb.iotdemo.converter.THDataConverter;
+import com.polysorb.iotdemo.model.constants.IOTData;
 import io.netty.buffer.ByteBuf;
 import org.springframework.stereotype.Service;
 
@@ -28,10 +29,9 @@ public class THDataConverterImpl implements THDataConverter {
         converter.convertTemperature(buf, node);
 
         // voltage
-        int voltageH = (int)buf.getByte(16)&0xff;
-        int voltageL = (int)buf.getByte(17)&0xff;
+        int voltageH = buf.getShort(IOTData.VOLTAGE_H);
         ObjectNode voltageDetail = om.createObjectNode();
-        voltageDetail.put("value", voltageH+"."+voltageL);
+        voltageDetail.put("value", (float)voltageH/1000);
         voltageDetail.put("number", 3);
         voltageDetail.put("unit", "V");
         node.set("voltage", voltageDetail);
